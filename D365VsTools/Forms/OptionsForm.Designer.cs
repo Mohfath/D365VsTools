@@ -49,10 +49,14 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.bGetSolutions = new System.Windows.Forms.Button();
             this.comboBoxSolutions = new System.Windows.Forms.ComboBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.bPickEntities = new System.Windows.Forms.Button();
+            this.bPickFields = new System.Windows.Forms.Button();
             this.toolStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -123,6 +127,7 @@
             // panel2
             // 
             this.panel2.Controls.Add(this.groupBox2);
+            this.panel2.Controls.Add(this.groupBox3);
             this.panel2.Controls.Add(this.tbLogs);
             this.panel2.Controls.Add(this.groupBoxConnection);
             this.panel2.Controls.Add(this.cbExtendedLog);
@@ -134,7 +139,7 @@
             this.panel2.Margin = new System.Windows.Forms.Padding(2);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5);
-            this.panel2.Size = new System.Drawing.Size(582, 363);
+            this.panel2.Size = new System.Drawing.Size(620, 395);
             this.panel2.TabIndex = 1;
             // 
             // groupBox2
@@ -180,16 +185,47 @@
             this.bCreateMapping.Text = "Create Mapping File";
             this.bCreateMapping.UseVisualStyleBackColor = true;
             this.bCreateMapping.Click += new System.EventHandler(this.bCreateMapping_Click);
-            // 
+            //
+            // groupBox3
+            //
+            this.groupBox3.Controls.Add(this.bPickEntities);
+            this.groupBox3.Controls.Add(this.bPickFields);
+            this.groupBox3.Location = new System.Drawing.Point(237, 111);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(359, 92);
+            this.groupBox3.TabIndex = 11;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Code Generator";
+            //
+            // bPickEntities
+            //
+            this.bPickEntities.Location = new System.Drawing.Point(11, 24);
+            this.bPickEntities.Name = "bPickEntities";
+            this.bPickEntities.Size = new System.Drawing.Size(220, 23);
+            this.bPickEntities.TabIndex = 0;
+            this.bPickEntities.Text = "Pick Entities for Mapping...";
+            this.bPickEntities.UseVisualStyleBackColor = true;
+            this.bPickEntities.Click += new System.EventHandler(this.bPickEntities_Click);
+            //
+            // bPickFields
+            //
+            this.bPickFields.Location = new System.Drawing.Point(11, 53);
+            this.bPickFields.Name = "bPickFields";
+            this.bPickFields.Size = new System.Drawing.Size(220, 23);
+            this.bPickFields.TabIndex = 1;
+            this.bPickFields.Text = "Pick Fields for Mapping...";
+            this.bPickFields.UseVisualStyleBackColor = true;
+            this.bPickFields.Click += new System.EventHandler(this.bPickFields_Click);
+            //
             // tbLogs
             // 
             this.tbLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbLogs.Location = new System.Drawing.Point(8, 209);
+            this.tbLogs.Location = new System.Drawing.Point(8, 240);
             this.tbLogs.Multiline = true;
             this.tbLogs.Name = "tbLogs";
-            this.tbLogs.Size = new System.Drawing.Size(566, 146);
+            this.tbLogs.Size = new System.Drawing.Size(604, 147);
             this.tbLogs.TabIndex = 10;
             // 
             // groupBoxConnection
@@ -198,7 +234,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxConnection.Location = new System.Drawing.Point(12, 0);
             this.groupBoxConnection.Name = "groupBoxConnection";
-            this.groupBoxConnection.Size = new System.Drawing.Size(561, 48);
+            this.groupBoxConnection.Size = new System.Drawing.Size(596, 48);
             this.groupBoxConnection.TabIndex = 1;
             this.groupBoxConnection.TabStop = false;
             this.groupBoxConnection.Text = "Connection";
@@ -206,29 +242,29 @@
             // cbExtendedLog
             // 
             this.cbExtendedLog.AutoSize = true;
-            this.cbExtendedLog.Location = new System.Drawing.Point(484, 141);
+            this.cbExtendedLog.Location = new System.Drawing.Point(11, 214);
             this.cbExtendedLog.Name = "cbExtendedLog";
             this.cbExtendedLog.Size = new System.Drawing.Size(88, 17);
             this.cbExtendedLog.TabIndex = 5;
             this.cbExtendedLog.Text = "Extended log";
             this.cbExtendedLog.UseVisualStyleBackColor = true;
-            // 
+            //
             // bSave
-            // 
+            //
             this.bSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSave.Location = new System.Drawing.Point(418, 173);
+            this.bSave.Location = new System.Drawing.Point(447, 209);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(75, 23);
             this.bSave.TabIndex = 7;
             this.bSave.Text = "Save";
             this.bSave.UseVisualStyleBackColor = true;
             this.bSave.Click += new System.EventHandler(this.bSave_Click);
-            // 
+            //
             // bCancel
-            // 
+            //
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point(498, 173);
+            this.bCancel.Location = new System.Drawing.Point(532, 209);
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size(75, 23);
             this.bCancel.TabIndex = 8;
@@ -244,7 +280,7 @@
             this.groupBox1.Controls.Add(this.comboBoxSolutions);
             this.groupBox1.Location = new System.Drawing.Point(11, 51);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(561, 54);
+            this.groupBox1.Size = new System.Drawing.Size(596, 54);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Solution";
@@ -278,10 +314,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size(582, 388);
+            this.ClientSize = new System.Drawing.Size(620, 420);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.toolStrip1);
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.MinimumSize = new System.Drawing.Size(636, 459);
             this.Name = "WebResourcesUpdaterForm";
             this.Text = "Microsoft Dynamics 365 Tools for Visual Studio - Options";
             this.toolStrip1.ResumeLayout(false);
@@ -291,6 +328,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -317,6 +355,9 @@
         private System.Windows.Forms.Button bCreateMapping;
         private System.Windows.Forms.TextBox tbLogs;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button bPickEntities;
+        private System.Windows.Forms.Button bPickFields;
     }
 }
 

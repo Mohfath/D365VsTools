@@ -41,19 +41,65 @@ namespace CrmCodeGenerator.Tests
         }
 
         [TestMethod]
-        public void EntityWithNoCodeNameOrAttributes_ReturnsNoErrors()
+        public void EntityWithNoCodeNameOrAttributes_ReturnsBothErrors()
         {
             var settings = SingleEntity("account", new EntityMappingSetting());
 
             var errors = XrmCodeGenerator.ValidateMapping(settings);
 
-            Assert.AreEqual(0, errors.Count);
+            Assert.AreEqual(2, errors.Count);
+            Assert.IsTrue(errors.Any(e => e.Contains("CodeName is missing or empty")));
+            Assert.IsTrue(errors.Any(e => e.Contains("Attributes is missing or empty")));
+        }
+
+        [TestMethod]
+        public void EntityMissingCodeName_ReturnsError()
+        {
+            var settings = SingleEntity("account", new EntityMappingSetting
+            {
+                Attributes = new Dictionary<string, string> { { "accountid", "Id" } }
+            });
+
+            var errors = XrmCodeGenerator.ValidateMapping(settings);
+
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.Contains(errors[0], "CodeName is missing or empty");
+        }
+
+        [TestMethod]
+        public void EntityMissingAttributes_ReturnsError()
+        {
+            var settings = SingleEntity("account", new EntityMappingSetting { CodeName = "Account" });
+
+            var errors = XrmCodeGenerator.ValidateMapping(settings);
+
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.Contains(errors[0], "Attributes is missing or empty");
+        }
+
+        [TestMethod]
+        public void EntityWithEmptyAttributesDictionary_ReturnsError()
+        {
+            var settings = SingleEntity("account", new EntityMappingSetting
+            {
+                CodeName = "Account",
+                Attributes = new Dictionary<string, string>()
+            });
+
+            var errors = XrmCodeGenerator.ValidateMapping(settings);
+
+            Assert.AreEqual(1, errors.Count);
+            StringAssert.Contains(errors[0], "Attributes is missing or empty");
         }
 
         [TestMethod]
         public void UppercaseEntityLogicalName_ReturnsError()
         {
-            var settings = SingleEntity("Account", new EntityMappingSetting { CodeName = "Account" });
+            var settings = SingleEntity("Account", new EntityMappingSetting
+            {
+                CodeName = "Account",
+                Attributes = new Dictionary<string, string> { { "accountid", "Id" } }
+            });
 
             var errors = XrmCodeGenerator.ValidateMapping(settings);
 
@@ -81,7 +127,11 @@ namespace CrmCodeGenerator.Tests
         [TestMethod]
         public void EntityCodeName_InvalidIdentifier_ReturnsError()
         {
-            var settings = SingleEntity("account", new EntityMappingSetting { CodeName = "My Account" });
+            var settings = SingleEntity("account", new EntityMappingSetting
+            {
+                CodeName = "My Account",
+                Attributes = new Dictionary<string, string> { { "accountid", "Id" } }
+            });
 
             var errors = XrmCodeGenerator.ValidateMapping(settings);
 
@@ -92,7 +142,11 @@ namespace CrmCodeGenerator.Tests
         [TestMethod]
         public void EntityCodeName_StartsWithLowercase_ReturnsError()
         {
-            var settings = SingleEntity("account", new EntityMappingSetting { CodeName = "account" });
+            var settings = SingleEntity("account", new EntityMappingSetting
+            {
+                CodeName = "account",
+                Attributes = new Dictionary<string, string> { { "accountid", "Id" } }
+            });
 
             var errors = XrmCodeGenerator.ValidateMapping(settings);
 
@@ -103,7 +157,11 @@ namespace CrmCodeGenerator.Tests
         [TestMethod]
         public void EntityCodeName_StartsWithDigit_ReturnsError()
         {
-            var settings = SingleEntity("account", new EntityMappingSetting { CodeName = "1Account" });
+            var settings = SingleEntity("account", new EntityMappingSetting
+            {
+                CodeName = "1Account",
+                Attributes = new Dictionary<string, string> { { "accountid", "Id" } }
+            });
 
             var errors = XrmCodeGenerator.ValidateMapping(settings);
 
@@ -202,8 +260,8 @@ namespace CrmCodeGenerator.Tests
             {
                 Entities = new Dictionary<string, EntityMappingSetting>
                 {
-                    { "Account", new EntityMappingSetting { CodeName = "Account" } },
-                    { "contact", new EntityMappingSetting { CodeName = "contact" } }
+                    { "Account", new EntityMappingSetting { CodeName = "Account", Attributes = new Dictionary<string, string> { { "accountid", "Id" } } } },
+                    { "contact", new EntityMappingSetting { CodeName = "contact", Attributes = new Dictionary<string, string> { { "contactid", "Id" } } } }
                 }
             };
 

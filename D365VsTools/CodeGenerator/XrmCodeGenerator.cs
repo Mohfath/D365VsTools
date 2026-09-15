@@ -234,11 +234,16 @@ namespace D365VsTools.CodeGenerator
                 if (entityLogicalName != entityLogicalName.ToLowerInvariant())
                     errors.Add($"Entity '{entityLogicalName}': logical name must be lowercase, e.g. '{entityLogicalName.ToLowerInvariant()}'.");
 
-                if (!string.IsNullOrWhiteSpace(mapping?.CodeName))
+                if (string.IsNullOrWhiteSpace(mapping?.CodeName))
+                    errors.Add($"Entity '{entityLogicalName}': CodeName is missing or empty.");
+                else
                     ValidateCodeName(mapping.CodeName, $"Entity '{entityLogicalName}'");
 
-                if (mapping?.Attributes == null)
+                if (mapping?.Attributes == null || mapping.Attributes.Count == 0)
+                {
+                    errors.Add($"Entity '{entityLogicalName}': Attributes is missing or empty.");
                     continue;
+                }
 
                 var seenCodeNames = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var attributeEntry in mapping.Attributes)
@@ -291,6 +296,25 @@ namespace D365VsTools.CodeGenerator
             {
                 var serializer = new DataContractJsonSerializer(typeof(T), settings);
                 return serializer.ReadObject(memoryStream) as T;
+            }
+        }
+
+        /// <summary>
+        /// Serializes with the same DataContractJsonSerializer settings Deserialize&lt;T&gt; reads back with
+        /// (plain public fields, simple dictionary format), so mapping files round-trip correctly.
+        /// </summary>
+        public static string Serialize<T>(T obj) where T : class
+        {
+            var settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
+            var serializer = new DataContractJsonSerializer(typeof(T), settings);
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var writer = System.Runtime.Serialization.Json.JsonReaderWriterFactory.CreateJsonWriter(memoryStream, Encoding.UTF8, ownsStream: false, indent: true))
+                {
+                    serializer.WriteObject(writer, obj);
+                    writer.Flush();
+                }
+                return Encoding.UTF8.GetString(memoryStream.ToArray());
             }
         }
     }

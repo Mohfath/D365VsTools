@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Net;
 using System.Windows.Forms;
+using D365VsTools.CodeGenerator;
+using D365VsTools.CodeGenerator.Model;
 using D365VsTools.Properties;
 using D365VsTools.VisualStudio;
 using D365VsTools.WebResourceUpdater;
+using D365VsTools.Xrm;
 using McTools.Xrm.Connection;
 using McTools.Xrm.Connection.WinForms;
 using Microsoft.Xrm.Sdk;
@@ -347,6 +352,109 @@ namespace D365VsTools.Forms
             catch (Exception ex)
             {
                 Log(ex.ToString());
+            }
+        }
+
+        private const string CrmSchemaMappingFileName = "CrmSchema.mapping.json";
+
+        private void bPickEntities_Click(object sender, EventArgs e)
+        {
+            ConnectAndExecute(OpenEntityPicker);
+        }
+
+        private void bPickFields_Click(object sender, EventArgs e)
+        {
+            ConnectAndExecute(OpenFieldPicker);
+        }
+
+        /// <summary>
+        /// Searches the whole project (including subfolders) for an existing CrmSchema.mapping.json;
+        /// falls back to a project-root path (not yet created) if none is found.
+        /// </summary>
+        private (string filePath, bool fileExistedBefore) ResolveCrmSchemaMappingFile(EnvDTE.Project project)
+        {
+            var projectFiles = ProjectHelper.GetProjectFiles(project.ProjectItems);
+            var filePath = projectFiles?.FirstOrDefault(f => string.Equals(Path.GetFileName(f), CrmSchemaMappingFileName, StringComparison.OrdinalIgnoreCase));
+            var fileExistedBefore = filePath != null;
+            if (!fileExistedBefore)
+                filePath = Path.Combine(ProjectHelper.GetProjectRoot(project), CrmSchemaMappingFileName);
+
+            return (filePath, fileExistedBefore);
+        }
+
+        private static MappingSettings LoadMappingSettingsOrNew(string filePath, bool fileExistedBefore)
+        {
+            var mappingSettings = fileExistedBefore ? XrmCodeGenerator.LoadMappingFromFile(filePath) : null;
+            mappingSettings = mappingSettings ?? new MappingSettings();
+            if (mappingSettings.Entities == null)
+                mappingSettings.Entities = new Dictionary<string, EntityMappingSetting>();
+
+            return mappingSettings;
+        }
+
+        private static void SaveMappingSettings(MappingSettings mappingSettings, string filePath, bool fileExistedBefore, EnvDTE.Project project)
+        {
+            var json = XrmCodeGenerator.Serialize(mappingSettings);
+            File.WriteAllText(filePath, json);
+
+            if (!fileExistedBefore)
+                project.ProjectItems.AddFromFile(filePath);
+        }
+
+        private void OpenEntityPicker(IOrganizationService service)
+        {
+            var project = ProjectHelper.GetSelectedProject();
+            if (project == null)
+            {
+                Log("No project is selected.");
+                return;
+            }
+
+            var (filePath, fileExistedBefore) = ResolveCrmSchemaMappingFile(project);
+            var mappingSettings = LoadMappingSettingsOrNew(filePath, fileExistedBefore);
+
+            Log("Retrieving entities...");
+            var allEntities = service.GetAllEntitiesBasicMetadata();
+
+            using (var picker = new EntityPickerForm(allEntities, mappingSettings) { StartPosition = FormStartPosition.CenterParent })
+            {
+                if (picker.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                SaveMappingSettings(picker.MappingSettings, filePath, fileExistedBefore, project);
+
+                Log($"Saved {picker.MappingSettings.Entities.Count} entit{(picker.MappingSettings.Entities.Count == 1 ? "y" : "ies")} to {CrmSchemaMappingFileName}");
+            }
+        }
+
+        private void OpenFieldPicker(IOrganizationService service)
+        {
+            var project = ProjectHelper.GetSelectedProject();
+            if (project == null)
+            {
+                Log("No project is selected.");
+                return;
+            }
+
+            var (filePath, fileExistedBefore) = ResolveCrmSchemaMappingFile(project);
+            var mappingSettings = LoadMappingSettingsOrNew(filePath, fileExistedBefore);
+
+            if (mappingSettings.Entities.Count == 0)
+            {
+                MessageBox.Show(this,
+                    $"No entities have been added to {CrmSchemaMappingFileName} yet. Use \"Pick Entities for Mapping...\" first.",
+                    "No Entities", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var picker = new FieldPickerForm(service, mappingSettings) { StartPosition = FormStartPosition.CenterParent })
+            {
+                if (picker.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                SaveMappingSettings(picker.MappingSettings, filePath, fileExistedBefore, project);
+
+                Log($"Saved field selection to {CrmSchemaMappingFileName}");
             }
         }
 

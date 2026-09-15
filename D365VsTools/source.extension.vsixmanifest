@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="D365-VS-Tools" Version="1.2026.0915.1433" Language="en-US" Publisher="CSharpAngels" />
+        <Identity Id="D365-VS-Tools" Version="1.2026.0915.1617" Language="en-US" Publisher="CSharpAngels" />
         <DisplayName>D365-VS-Tools</DisplayName>
         <Description xml:space="preserve">Microsoft Dynamics 365 / Power App Tools gives you an easy way to generate code, update and publish web resources directly from Visual Studio.
 + This Version is Compatible with VS 2022 (17,0) and VS 2026 (18,0)

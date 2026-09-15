@@ -221,8 +221,22 @@ namespace D365VsTools.CodeGenerator.Helpers
         {
             if (string.IsNullOrWhiteSpace(p))
                 return "Empty";
-            
+
             return Clean(Camel(p));
+        }
+
+        /// <summary>
+        /// Turns a CRM display label into a PascalCase C# identifier by stripping spaces/punctuation while
+        /// preserving the label's existing word-start capitalization (e.g. "Business Closure" -> "BusinessClosure").
+        /// Used for mapping-file default CodeNames, which should read like the label, not the logical name.
+        /// </summary>
+        public static string GetCodeNameFromLabel(string label)
+        {
+            var cleaned = Clean(label);
+            if (string.IsNullOrEmpty(cleaned))
+                return cleaned;
+
+            return char.IsUpper(cleaned[0]) ? cleaned : char.ToUpperInvariant(cleaned[0]) + cleaned.Substring(1);
         }
 
         public static string GetPluralName(string p)

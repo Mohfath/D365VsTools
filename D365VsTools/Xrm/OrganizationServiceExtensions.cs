@@ -72,6 +72,21 @@ namespace D365VsTools.Xrm
             return result;
         }
 
+        /// <summary>
+        /// Retrieves entity-level metadata (LogicalName, SchemaName, PrimaryIdAttribute, etc.) for every entity,
+        /// without the heavier per-entity attribute/relationship metadata that EntityFilters.All would include.
+        /// </summary>
+        public static EntityMetadata[] GetAllEntitiesBasicMetadata(this IOrganizationService service, bool includeUnpublish = true)
+        {
+            var request = new RetrieveAllEntitiesRequest
+            {
+                EntityFilters = EntityFilters.Entity,
+                RetrieveAsIfPublished = includeUnpublish,
+            };
+            var response = (RetrieveAllEntitiesResponse)service.Execute(request);
+            return response.EntityMetadata;
+        }
+
         public static EntityMetadata[] GetEntitiesMetadata(this IOrganizationService service, IEnumerable<string> entities, bool includeUnpublish = true)
         {
             var results = new List<EntityMetadata>();
