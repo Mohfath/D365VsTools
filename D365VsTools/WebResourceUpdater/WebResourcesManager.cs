@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Media;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using D365VsTools.Common;
 using D365VsTools.Forms;
@@ -71,7 +73,9 @@ namespace D365VsTools.WebResourceUpdater
 
             Logger.WriteLine(projectFiles.Count + " path" + (projectFiles.Count == 1 ? " was" : "s were") + " loaded", settings.ExtendedLog);
 
-            Execute(service => TryUpdateWebResources(service, projectFiles), settings);
+            // The upload/publish work below only needs CRM calls plus a few DTE lookups (marshaled back to
+            // the UI thread as needed), so it runs off the UI thread and Visual Studio stays responsive.
+            Execute(service => Task.Run(() => TryUpdateWebResources(service, projectFiles)), settings);
         }
 
         private void TryUpdateWebResources( IOrganizationService service, List<string> projectFiles)
@@ -119,6 +123,7 @@ namespace D365VsTools.WebResourceUpdater
             }
 
             Logger.WriteLineWithTime("Done.");
+            SystemSounds.Beep.Play();
         }
         
         public List<string> GetSelectedFiles(bool uploadSelectedItems = false)
@@ -146,16 +151,17 @@ namespace D365VsTools.WebResourceUpdater
         /// <returns>List of Guids of web resources that was updateds</returns>            
         private Dictionary<Guid, string> UpdateWebResources( IOrganizationService service, List<string> projectFiles = null)
         {
-            projectFiles = projectFiles ?? GetSelectedFiles();
+            projectFiles = projectFiles ?? ProjectHelper.RunOnUIThread(() => GetSelectedFiles());
             if (projectFiles == null || projectFiles.Count == 0)
             {
                 return null;
             }
 
             var ids = new Dictionary<Guid, string>();
-            var project = ProjectHelper.GetSelectedProject();
-            var projectRootPath = ProjectHelper.GetProjectRoot(project);
-            var mappings = WebResourcesFilesMapping.LoadMappings(project);
+            // DTE calls: must run on the UI thread even when this method is called from a background thread.
+            var project = ProjectHelper.RunOnUIThread(ProjectHelper.GetSelectedProject);
+            var projectRootPath = ProjectHelper.RunOnUIThread(() => ProjectHelper.GetProjectRoot(project));
+            var mappings = ProjectHelper.RunOnUIThread(() => WebResourcesFilesMapping.LoadMappings(project));
             var webResources = RetrieveWebResources(service);
 
             foreach (var filePath in projectFiles)
@@ -216,8 +222,8 @@ namespace D365VsTools.WebResourceUpdater
             var webResourceName = Path.GetFileName(filePath);
             Logger.WriteLine("Uploading " + webResourceName, Settings.ExtendedLog);
 
-            var project = ProjectHelper.GetSelectedProject();
-            var projectRootPath = ProjectHelper.GetProjectRoot(project);
+            var project = ProjectHelper.RunOnUIThread(ProjectHelper.GetSelectedProject);
+            var projectRootPath = ProjectHelper.RunOnUIThread(() => ProjectHelper.GetProjectRoot(project));
 
             var localContent = ProjectHelper.GetEncodedFileContent(filePath);
             var remoteContent = webResource.GetAttributeValue<string>("content");

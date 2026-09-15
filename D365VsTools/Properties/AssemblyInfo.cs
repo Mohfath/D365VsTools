@@ -1,5 +1,17 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.Shell;
+
+// MscrmTools.Xrm.Connection (Add Connection dialog) needs ADAL 5.2.9, but Microsoft.CrmSdk.XrmTooling.CoreAssembly
+// was compiled against ADAL 3.19.8.16603. NuGet unifies the deployed DLL to 5.2.9.0, so without this redirect the
+// CLR refuses to load it for the 3.19.8.16603 request: "Could not load file or assembly
+// 'Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.19.8.16603...'".
+[assembly: ProvideBindingRedirection(
+    AssemblyName = "Microsoft.IdentityModel.Clients.ActiveDirectory",
+    PublicKeyToken = "31bf3856ad364e35",
+    OldVersionLowerBound = "0.0.0.0",
+    OldVersionUpperBound = "5.2.9.0",
+    NewVersion = "5.2.9.0")]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

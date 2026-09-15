@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Net;
 using System.Windows.Forms;
 using D365VsTools.Properties;
@@ -274,9 +275,15 @@ namespace D365VsTools.Forms
 
         public void ConnectAndExecute(Action<IOrganizationService> action)
         {
-            Log($"Connect and Execute '{action.Target}: {action.GetHashCode()}'");
-
             var connection = SelectedConnection;
+            if (connection == null)
+            {
+                MessageBox.Show(this, "Please connect to a Dynamics 365 / Dataverse organization first.",
+                    "No Connection Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Log($"Connect and Execute '{action.Target}: {action.GetHashCode()}'");
             formHelper.AskForConnection(connection, action, () => Log($"Connection requested to {connection.ConnectionName}"));
         }
 
@@ -293,6 +300,7 @@ namespace D365VsTools.Forms
             var user = queryResult.Entities.First();
 
             Log($"Hello {user.GetAttributeValue<string>("fullname")},Your ID is: {user.Id:B}");
+            SystemSounds.Beep.Play();
         }
         #endregion WhoAmI Sample methods
 
@@ -350,6 +358,7 @@ namespace D365VsTools.Forms
         private void GetSolutions(IOrganizationService service)
         {
             Cursor = Cursors.WaitCursor;
+            Log("Retrieving solutions...");
 
             WebRequest.GetSystemWebProxy();
 
@@ -397,6 +406,8 @@ namespace D365VsTools.Forms
             comboBoxSolutions.SelectedIndex = selectedIndex;
 
             Cursor = Cursors.Default;
+            Log($"Retrieved {items.Count} solution(s).");
+            SystemSounds.Beep.Play();
         }
 
         public void Log(string message)

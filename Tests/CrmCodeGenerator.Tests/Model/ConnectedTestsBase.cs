@@ -5,6 +5,7 @@
 using System;
 using System.Configuration;
 using D365VsTools.CodeGenerator;
+using D365VsTools.Xrm;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 

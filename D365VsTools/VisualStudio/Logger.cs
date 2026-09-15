@@ -23,37 +23,40 @@ namespace D365VsTools.VisualStudio
         }
 
         /// <summary>
-        /// Adds line feed to message and writes it to output window
+        /// Adds a timestamp and line feed to message and writes it to output window
         /// </summary>
         /// <param name="message">text message to write</param>
         /// <param name="print">print or ignore call using for extended logging</param>
         public static void WriteLine(string message, bool print = true)
         {
             if (print)
-                Write(message + "\r\n");
+                Write($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
         }
 
         /// <summary>
-        /// Writes message to output window
+        /// Writes message to output window. Safe to call from a background thread (commands can now run
+        /// their CRM/file work off the UI thread; this marshals back onto it as needed).
         /// </summary>
         /// <param name="message">Text message to write</param>
         public static void Write(string message)
         {
-            try
+            ProjectHelper.RunOnUIThread(() =>
             {
-                Debug.Print(message);
-                ThreadHelper.ThrowIfNotOnUIThread();
+                try
+                {
+                    Debug.Print(message);
 
-                Guid windowGuid = ProjectGuids.OutputWindow;
-                IVsOutputWindowPane pane;
-                _outputWindow.GetPane(ref windowGuid, out pane);
-                pane.Activate();
-                pane.OutputStringThreadSafe(message);
-            }
-            catch (Exception e)
-            {
-                Debug.Print("Error writting Log: " + e.Message);
-            }
+                    Guid windowGuid = ProjectGuids.OutputWindow;
+                    IVsOutputWindowPane pane;
+                    _outputWindow.GetPane(ref windowGuid, out pane);
+                    pane.Activate();
+                    pane.OutputStringThreadSafe(message);
+                }
+                catch (Exception e)
+                {
+                    Debug.Print("Error writting Log: " + e.Message);
+                }
+            });
         }
 
         public static void Clear()
@@ -66,9 +69,7 @@ namespace D365VsTools.VisualStudio
             pane.Clear();
         }
 
-        public static void WriteLineWithTime(string message, bool print = true)
-        {
-            WriteLine(DateTime.Now.ToString("HH:mm") + ": " + message, print);
-        }
+        // WriteLine now timestamps every line itself; kept for existing callers.
+        public static void WriteLineWithTime(string message, bool print = true) => WriteLine(message, print);
     }
 }

@@ -22,6 +22,40 @@ namespace D365VsTools.VisualStudio
         }
 
         /// <summary>
+        /// Runs action on the UI thread, switching to it first if called from a background thread.
+        /// Needed for DTE/VS-service calls (which are main-thread-only) invoked from backgrounded commands.
+        /// </summary>
+        public static void RunOnUIThread(Action action)
+        {
+            if (ThreadHelper.CheckAccess())
+            {
+                action();
+                return;
+            }
+
+            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                action();
+            });
+        }
+
+        /// <summary>
+        /// Runs func on the UI thread and returns its result, switching to it first if called from a background thread.
+        /// </summary>
+        public static T RunOnUIThread<T>(Func<T> func)
+        {
+            if (ThreadHelper.CheckAccess())
+                return func();
+
+            return ThreadHelper.JoinableTaskFactory.Run(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                return func();
+            });
+        }
+
+        /// <summary>
         /// Sets service provider for helper needs
         /// </summary>
         /// <param name="serviceProvider">Service provider</param>
@@ -141,21 +175,22 @@ namespace D365VsTools.VisualStudio
         
         public static void SetStatusBar(string message, object icon = null)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var statusBar = _serviceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
-            if(statusBar == null)
-                return;
-
-            statusBar.IsFrozen(out int frozen);
-            if (frozen == 0)
+            RunOnUIThread(() =>
             {
-                //object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_Deploy;
-                if (icon != null)
-                    statusBar.Animation(1, ref icon);
-                //
-                statusBar.SetText(message);
-            }
+                var statusBar = _serviceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
+                if (statusBar == null)
+                    return;
+
+                statusBar.IsFrozen(out int frozen);
+                if (frozen == 0)
+                {
+                    //object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_Deploy;
+                    if (icon != null)
+                        statusBar.Animation(1, ref icon);
+                    //
+                    statusBar.SetText(message);
+                }
+            });
         }
 
         public static void SaveAll()

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.IO;
-using System.Text;
 using D365VsTools.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 
@@ -64,9 +62,8 @@ namespace D365VsTools.CodeGenerator.Commands
                 return;
             
             generator = generator ?? new XrmCodeGenerator();
+            // GenerateCode now runs its heavy work in the background and logs/beeps when it actually finishes.
             generator.GenerateCode(filePath);
-            
-            Logger.WriteLine("Executing Generate Code - End");
         }
     }
 }

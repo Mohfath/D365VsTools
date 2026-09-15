@@ -1,0 +1,1 @@
+C:\Users\ME\.nuget\packages\microsoft.vssdk.buildtools\17.1.4057\tools\VSSDK\Microsoft.VsSDK.targets(823,5): error VSSDK1077: Unable to locate the extensions directory. "The system cannot find the file specified. (Exception from HRESULT: 0x80070002)". [C:\VM_Workspace\Projects\D365VsTools-main\D365VsTools\D365VsTools.Package.csproj]

@@ -7,6 +7,7 @@ using McTools.Xrm.Connection;
 using McTools.Xrm.Connection.WinForms;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using SolutionDetails = D365VsTools.Configuration.SolutionDetails;
 
 namespace CrmWebResourcesUpdater.OptionsForms
 {
@@ -80,7 +81,7 @@ namespace CrmWebResourcesUpdater.OptionsForms
             manager.RequestPassword -= ConnectionManager_RequestPassword;
         }
 
-        public void Init(Settings settings)
+        public void Init(D365VsTools.Configuration.Settings settings)
         {
             if (settings == null)
                 return;
@@ -303,18 +304,9 @@ namespace CrmWebResourcesUpdater.OptionsForms
 
         private void bCreateMapping_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Log("Creating Mapping File ...");
-                string filePath = MappingHelper.CreateMappingFile();
-                if (filePath == null)
-                    Log("Creating Mapping File Fail");
-                Log(filePath + " " + Resources.Successfully_Created);
-            }
-            catch (Exception ex)
-            {
-                Log(ex.ToString());
-            }
+            // MappingHelper.CreateMappingFile() and the Resources.Successfully_Created string this used to
+            // call never existed anywhere else in this codebase; the feature was never implemented.
+            Log("Creating Mapping File is not implemented.");
         }
 
         private void bGetSolutions_Click(object sender, EventArgs e)

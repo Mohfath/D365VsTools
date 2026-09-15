@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CrmCodeGenerator.VSPackage.Model;
-using CrmCodeGenerator.VSPackage;
+using D365VsTools.CodeGenerator.Model;
+using D365VsTools.CodeGenerator;
 
 namespace CrmCodeGenerator.Tests
 {
@@ -37,7 +37,7 @@ namespace CrmCodeGenerator.Tests
 	    },
     }
 }";
-            var mapping = VSPackage.XrmCodeGenerator.Deserialize<MappingSettings>(json);
+            var mapping = XrmCodeGenerator.Deserialize<MappingSettings>(json);
             Assert.IsNotNull(mapping);
             Assert.IsNotNull(mapping.Entities);
             Assert.AreEqual(2, mapping.Entities.Count);
