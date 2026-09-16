@@ -18,6 +18,13 @@ Microsoft Dynamics 365 / Power App Tools gives you an easy way to generate code,
     + JSON Based selection of Entities & Attributes with configurable Code Names.
     + Integrarion of [MscrmTools.Xrm.Connection (from XrmToolKit)](https://github.com/MscrmTools/MscrmTools.Xrm.Connection)
 
+  + Mohammad Fathololomi (Matt Freeman)
+    + Visual Entity Picker (searchable list with label column, double-click to select)
+    + Visual Field Picker (with "Check All" support)
+    + Visual Studio 2026 compatibility
+    + Asynchronous web resource upload/publish (no more freezing Visual Studio during the job)
+    + Beep sound on upload/publish job completion
+
 #### JavaScript File Version
 Add/Update File Version (Date/Time as Comment) into each JavaScript Files each time before upload. (Just if file content change)
 
@@ -45,6 +52,12 @@ Examples:
 
 ### Changes
 -
+#### _v1.2026.0916.0929 (2026-09-16)_
++ Add Visual Entity Picker (searchable list with label column, double-click to select)
++ Add Visual Field Picker (with "Check All" support)
++ Add Visual Studio 2026 compatibility
++ Run web resource upload/publish asynchronously so Visual Studio no longer freezes during the job
++ Play a beep sound when the upload/publish job finishes
 #### _v0.5.40.1 (2021-06-06)_
 + Updating the Connnection Control from McTools (some connections types are not working - use SDK Dialog)
 #### _v0.5.35.8 (2021-03-10)_
