@@ -19,6 +19,7 @@ namespace D365VsTools.Forms
         private AttributeMetadata[] currentAttributes = new AttributeMetadata[0];
         private string currentEntityLogicalName;
         private bool isRefreshing;
+        private bool isSyncingCheckAll;
         private int sortColumn = -1;
         private SortOrder sortOrder = SortOrder.Ascending;
 
@@ -122,6 +123,39 @@ namespace D365VsTools.Forms
             SortFieldList();
             lvFields.EndUpdate();
             isRefreshing = false;
+
+            UpdateCheckAllState();
+        }
+
+        private void cbCheckAll_CheckedChanged(object sender, EventArgs e)
+        {
+            if (isSyncingCheckAll)
+                return;
+
+            // Checking/unchecking each item fires ItemChecked -> UpdateCheckAllState(), which can flip
+            // cbCheckAll.Checked mid-loop (it isn't "all checked" until the last item is done) - so the
+            // target state must be captured once up front rather than re-read from cbCheckAll.Checked
+            // on every iteration.
+            var targetChecked = cbCheckAll.Checked;
+            foreach (ListViewItem item in lvFields.Items)
+                item.Checked = targetChecked;
+
+            UpdateCheckAllState();
+        }
+
+        /// <summary>
+        /// Keeps "Check All" a true reflection of the visible list: unchecked as soon as any item is
+        /// unchecked, re-checked once every visible item ends up checked again.
+        /// </summary>
+        private void UpdateCheckAllState()
+        {
+            var allChecked = lvFields.Items.Count > 0 && lvFields.Items.Cast<ListViewItem>().All(i => i.Checked);
+            if (cbCheckAll.Checked == allChecked)
+                return;
+
+            isSyncingCheckAll = true;
+            cbCheckAll.Checked = allChecked;
+            isSyncingCheckAll = false;
         }
 
         private void SortFieldList()
@@ -173,6 +207,8 @@ namespace D365VsTools.Forms
             {
                 entityMapping.Attributes.Remove(attribute.LogicalName);
             }
+
+            UpdateCheckAllState();
         }
 
         private void btnOk_Click(object sender, EventArgs e)

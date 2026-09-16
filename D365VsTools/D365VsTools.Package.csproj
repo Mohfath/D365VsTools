@@ -144,6 +144,7 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="Key.snk" />
+    <None Include="UpdateVersion.ps1" />
     <Content Include="Resources\ReadMe.docx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -245,11 +246,9 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  <!-- Bumps the VSIX version (Major.Year.MMDD.HHMM) before every build, from Visual Studio or the
+       command line, so the built .vsix always installs in place over whatever was built before. -->
   <Target Name="BeforeBuild">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)UpdateVersion.ps1&quot; -ManifestPath &quot;$(ProjectDir)source.extension.vsixmanifest&quot;" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

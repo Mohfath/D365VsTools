@@ -38,6 +38,11 @@ namespace D365VsTools.Forms
             RefreshLists();
         }
 
+        private string GetLabel(string logicalName) =>
+            allEntitiesByLogicalName.TryGetValue(logicalName, out var metadata)
+                ? metadata.DisplayName?.UserLocalizedLabel?.Label ?? ""
+                : "";
+
         private IEnumerable<string> AvailableLogicalNames =>
             allEntitiesByLogicalName.Keys
                 .Where(n => !mappingSettings.Entities.ContainsKey(n))
@@ -53,23 +58,39 @@ namespace D365VsTools.Forms
         {
             var filter = txtFilter.Text?.Trim() ?? "";
             var items = AvailableLogicalNames
-                .Where(n => filter.Length == 0 || n.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0)
+                .Where(n => filter.Length == 0
+                    || n.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
+                    || GetLabel(n).IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToArray();
 
-            lstAvailable.BeginUpdate();
-            lstAvailable.Items.Clear();
-            lstAvailable.Items.AddRange(items);
-            lstAvailable.EndUpdate();
+            RepopulatePreservingScroll(lstAvailable, items);
         }
 
         private void RefreshSelectedList()
         {
             var items = mappingSettings.Entities.Keys.OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToArray();
 
-            lstSelected.BeginUpdate();
-            lstSelected.Items.Clear();
-            lstSelected.Items.AddRange(items);
-            lstSelected.EndUpdate();
+            RepopulatePreservingScroll(lstSelected, items);
+        }
+
+        /// <summary>
+        /// Clears and repopulates a ListView without resetting its scroll position back to the top -
+        /// ListView.Items.Clear() otherwise loses the current TopItem, which is jarring when adding or
+        /// removing a single entity from a list you're scrolled through.
+        /// </summary>
+        private void RepopulatePreservingScroll(ListView listView, string[] logicalNames)
+        {
+            var topIndex = listView.TopItem?.Index ?? -1;
+
+            listView.BeginUpdate();
+            listView.Items.Clear();
+            foreach (var logicalName in logicalNames)
+                listView.Items.Add(new ListViewItem(new[] { logicalName, GetLabel(logicalName) }));
+
+            if (topIndex >= 0 && listView.Items.Count > 0)
+                listView.TopItem = listView.Items[Math.Min(topIndex, listView.Items.Count - 1)];
+
+            listView.EndUpdate();
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
@@ -77,9 +98,20 @@ namespace D365VsTools.Forms
             RefreshAvailableList();
         }
 
+        private void lstAvailable_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (lstAvailable.HitTest(e.Location).Item != null)
+                AddSelectedEntities();
+        }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            var selected = lstAvailable.SelectedItems.Cast<string>().ToArray();
+            AddSelectedEntities();
+        }
+
+        private void AddSelectedEntities()
+        {
+            var selected = lstAvailable.SelectedItems.Cast<ListViewItem>().Select(i => i.Text).ToArray();
             foreach (var logicalName in selected)
             {
                 if (mappingSettings.Entities.ContainsKey(logicalName))
@@ -112,7 +144,7 @@ namespace D365VsTools.Forms
 
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            var selected = lstSelected.SelectedItems.Cast<string>().ToArray();
+            var selected = lstSelected.SelectedItems.Cast<ListViewItem>().Select(i => i.Text).ToArray();
             foreach (var logicalName in selected)
                 mappingSettings.Entities.Remove(logicalName);
 

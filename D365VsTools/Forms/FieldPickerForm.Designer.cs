@@ -34,6 +34,7 @@ namespace D365VsTools.Forms
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.cbShowSystemFields = new System.Windows.Forms.CheckBox();
             this.cbShowManagedFields = new System.Windows.Forms.CheckBox();
+            this.cbCheckAll = new System.Windows.Forms.CheckBox();
             this.lvFields = new System.Windows.Forms.ListView();
             this.colLogicalName = new System.Windows.Forms.ColumnHeader();
             this.colLabel = new System.Windows.Forms.ColumnHeader();
@@ -100,6 +101,17 @@ namespace D365VsTools.Forms
             this.cbShowManagedFields.UseVisualStyleBackColor = true;
             this.cbShowManagedFields.CheckedChanged += new System.EventHandler(this.Filter_Changed);
             //
+            // cbCheckAll
+            //
+            this.cbCheckAll.AutoSize = true;
+            this.cbCheckAll.Location = new System.Drawing.Point(13, 68);
+            this.cbCheckAll.Name = "cbCheckAll";
+            this.cbCheckAll.Size = new System.Drawing.Size(70, 17);
+            this.cbCheckAll.TabIndex = 6;
+            this.cbCheckAll.Text = "Check All";
+            this.cbCheckAll.UseVisualStyleBackColor = true;
+            this.cbCheckAll.CheckedChanged += new System.EventHandler(this.cbCheckAll_CheckedChanged);
+            //
             // lvFields
             //
             this.lvFields.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -113,9 +125,9 @@ namespace D365VsTools.Forms
             this.lvFields.FullRowSelect = true;
             this.lvFields.GridLines = true;
             this.lvFields.HideSelection = false;
-            this.lvFields.Location = new System.Drawing.Point(13, 75);
+            this.lvFields.Location = new System.Drawing.Point(13, 95);
             this.lvFields.Name = "lvFields";
-            this.lvFields.Size = new System.Drawing.Size(674, 330);
+            this.lvFields.Size = new System.Drawing.Size(674, 310);
             this.lvFields.TabIndex = 6;
             this.lvFields.UseCompatibleStateImageBehavior = false;
             this.lvFields.View = System.Windows.Forms.View.Details;
@@ -170,6 +182,7 @@ namespace D365VsTools.Forms
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.lvFields);
+            this.Controls.Add(this.cbCheckAll);
             this.Controls.Add(this.cbShowManagedFields);
             this.Controls.Add(this.cbShowSystemFields);
             this.Controls.Add(this.txtFilter);
@@ -197,6 +210,7 @@ namespace D365VsTools.Forms
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.CheckBox cbShowSystemFields;
         private System.Windows.Forms.CheckBox cbShowManagedFields;
+        private System.Windows.Forms.CheckBox cbCheckAll;
         private System.Windows.Forms.ListView lvFields;
         private System.Windows.Forms.ColumnHeader colLogicalName;
         private System.Windows.Forms.ColumnHeader colLabel;
